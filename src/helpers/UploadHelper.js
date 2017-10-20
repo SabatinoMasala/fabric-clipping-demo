@@ -1,6 +1,7 @@
 /* global fabric */
 export default {
     handleEvent(e, callback) {
+        if (e.target.files.length === 0) { return; }
         const file = e.target.files[0];
         const reader = new FileReader();
         let size = file.size/1024/1024;

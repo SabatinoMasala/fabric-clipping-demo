@@ -7,7 +7,7 @@ export default class {
         let defaults = {
             originX: 'left',
             originY: 'top',
-            fill: '#ff0000',
+            fill: '#ccc',
             strokeWidth: 0,
             selectable: false,
             evented: false,
@@ -71,6 +71,11 @@ export default class {
                     ctx.restore();
                 }
             });
+            fabricImage.on('removed', (e) => {
+                this.setState({
+                    hasImage: false
+                })
+            });
             this.canvas.add(fabricImage).renderAll();
             this.canvas.setActiveObject(fabricImage);
             this.setState({
@@ -114,6 +119,7 @@ export default class {
     }
     render() {
         this.canvas.add(this.clipRect);
+        this.canvas.renderAll();
         this.positionButton();
     }
 }

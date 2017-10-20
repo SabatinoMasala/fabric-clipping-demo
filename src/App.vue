@@ -1,38 +1,40 @@
 <template>
     <div id="app">
-        <canvas id="canvas" width="500" height="500"></canvas>
+        <div class="wrapper">
+            <canvas id="canvas" width="500" height="500"></canvas>
+        </div>
     </div>
 </template>
 
 <style>
-    #button {
-        position: absolute;
-        z-index: 999;
+    .wrapper {
+        display: flex;
+        margin: auto;
     }
     * {
         margin: 0;
         padding: 0;
     }
     #app {
-        background-color: #ccc;
-        padding: 100px;
+        display: flex;
+        background-color: #fff;
         height: 100vh;
     }
     canvas {
-        margin: auto;
         border: 2px #000 solid;
     }
 </style>
 
 <script>
 
+    import $ from 'jquery'
     import ClipRect from './classes/ClipRect'
-    import _ from 'lodash'
     export default {
         name: 'app',
         components: {
         },
         mounted() {
+
             const canvas = new fabric.Canvas('canvas');
 
             let rect1 = new ClipRect(canvas, {
@@ -66,6 +68,16 @@
                 height: 249,
             });
             rect4.render();
+
+            $('body').keydown((e) => {
+                if (e.keyCode === 8) {
+                    const obj = canvas.getActiveObject();
+                    if (obj) {
+                        obj.remove();
+                    }
+                    canvas.renderAll();
+                }
+            });
 
         }
     }
