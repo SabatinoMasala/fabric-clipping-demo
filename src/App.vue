@@ -4,6 +4,9 @@
             <button @click.stop.prevent="zoomIn">Zoom in</button>
             <button @click.stop.prevent="zoomOut">Zoom out</button>
             <div class="spacer">&nbsp;</div>
+            <button @click.stop.prevent="canvasVisible = false" v-if="canvasVisible">Hide canvas</button>
+            <button @click.stop.prevent="canvasVisible = true" v-else>Show canvas</button>
+            <div class="spacer">&nbsp;</div>
             <button @click.stop.prevent="dragMode = true" v-if="!dragMode">Start panning</button>
             <button @click.stop.prevent="dragMode = false" v-else>Stop panning</button>
             <div class="spacer">&nbsp;</div>
@@ -11,7 +14,7 @@
             <div class="spacer" v-if="activeObject">&nbsp;</div>
             <button class="delete" @click.stop.prevent="removeActiveObject()" v-if="activeObject">Delete object</button>
         </div>
-        <div id="app">
+        <div id="app" :class="{hidden: !canvasVisible}">
             <div class="wrapper">
                 <canvas id="canvas" width="500" height="500"></canvas>
             </div>
@@ -108,6 +111,7 @@
         },
         data() {
             return {
+                canvasVisible: true,
                 activeObject: false,
                 canvas: false,
                 dragMode: false
@@ -168,5 +172,8 @@
     input[type=file] {
         position: absolute;
         opacity: 0;
+    }
+    .hidden {
+        display: none !important;
     }
 </style>

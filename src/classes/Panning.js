@@ -9,6 +9,8 @@ fabric.Canvas.prototype.toggleDragMode = function(dragMode) {
     let state = STATE_IDLE;
     // We're entering dragmode
     if (dragMode) {
+        // Discard any active object
+        this.discardActiveObject();
         // Set the cursor to 'move'
         this.defaultCursor = 'move';
         // Loop over all objects and disable events / selectable. We remember its value in a temp variable stored on each object
@@ -18,6 +20,8 @@ fabric.Canvas.prototype.toggleDragMode = function(dragMode) {
             object.evented = false;
             object.selectable = false;
         });
+        // Remove selection ability on the canvas
+        this.selection = false;
         // When MouseUp fires, we set the state to idle
         this.on('mouse:up', function (e) {
             state = STATE_IDLE;
@@ -64,5 +68,7 @@ fabric.Canvas.prototype.toggleDragMode = function(dragMode) {
         this.off('mouse:up');
         this.off('mouse:down');
         this.off('mouse:move');
+        // Restore selection ability on the canvas
+        this.selection = false;
     }
 };
