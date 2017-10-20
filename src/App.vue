@@ -36,13 +36,40 @@
         mounted() {
 
             const canvas = new fabric.Canvas('canvas');
-            canvas.setZoom(0.5);
-            canvas.absolutePan(
-                new fabric.Point(
-                    -50,
-                    -50,
-                )
-            );
+            // canvas.setZoom(0.5);
+//            canvas.absolutePan(
+//                new fabric.Point(
+//                    -50,
+//                    -50,
+//                )
+//            );
+
+//            let MyNewClass = fabric.util.createClass(fabric.Group, {
+//                type: 'demo',
+//                initialize: function () {
+//                    this._objects.push(
+//                        new fabric.Group([
+//                            new fabric.Text('A', {top: 200, left: 200}),
+//                            new fabric.Text('B', {top: 200, left: 200})
+//                        ]));
+//                    this._objects.push(
+//                        new fabric.Group([
+//                            new fabric.Text('C', {top: 200, left: 200}),
+//                            new fabric.Text('D', {top: 200, left: 200})
+//                        ]));
+//                }
+//            });
+//
+//            let example = new MyNewClass({
+//                fill: '#ff0000',
+//            });
+//
+//            canvas.add(example);
+//            canvas.renderAll();
+//            example.setCoords();
+//            console.log(canvas.toJSON());
+//
+//            return;
 
             let rect1 = new ClipRect(canvas, {
                 left: 0,
