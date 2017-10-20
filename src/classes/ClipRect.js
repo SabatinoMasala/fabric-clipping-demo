@@ -1,6 +1,5 @@
 import $ from 'jquery'
 import UploadHelper from '../helpers/UploadHelper'
-import _ from 'lodash'
 export default class {
     constructor(canvas, userOptions = {}) {
 
@@ -44,41 +43,49 @@ export default class {
         $(this.inputUpload).change(this.handleUpload.bind(this));
     }
     handleUpload(e) {
-        let _this = this;
         UploadHelper.handleEvent(e, (fabricImage) => {
-            fabricImage.set({
-                left: this.clipRect.left,
-                top: this.clipRect.top,
-                width: fabricImage.width * this.clipRect.width,
-                height: fabricImage.height * this.clipRect.width,
-                clipTo(ctx) {
-                    let panLeft = _this.canvas.viewportTransform[4];
-                    let panTop = _this.canvas.viewportTransform[5];
-                    this.setCoords();
-                    ctx.save();
-                    ctx.setTransform(1, 0, 0, 1, 0, 0);
-                    ctx.beginPath();
-                    ctx.rect(
-                        _this.zoom(_this.clipRect.left) + panLeft,
-                        _this.zoom(_this.clipRect.top) + panTop,
-                        _this.zoom(_this.clipRect.width),
-                        _this.zoom(_this.clipRect.height)
-                    );
-                    ctx.closePath();
-                    ctx.restore();
-                }
-            });
-            fabricImage.on('removed', (e) => {
-                this.setState({
-                    hasImage: false
-                })
-            });
-            this.canvas.add(fabricImage).renderAll();
-            this.canvas.setActiveObject(fabricImage);
+            this._loadImage(fabricImage)
+        });
+    }
+    _loadImage(fabricImage) {
+        let _this = this;
+        let left = this.clipRect.left;
+        let top = this.clipRect.top;
+        let width = fabricImage.width * this.clipRect.width;
+        let height = fabricImage.height * this.clipRect.width;
+        fabricImage.set({
+            left: left,
+            top: top,
+            width: width,
+            height: height,
+            clipTo(ctx) {
+                let panLeft = 0;
+                let panTop = 0;
+                this.setCoords();
+                ctx.save();
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.beginPath();
+                console.log(_this.clipRect.width);
+                ctx.rect(
+                    _this.zoom(_this.clipRect.left) + panLeft,
+                    _this.zoom(_this.clipRect.top) + panTop,
+                    _this.zoom(_this.clipRect.width),
+                    _this.zoom(_this.clipRect.height)
+                );
+                ctx.closePath();
+                ctx.restore();
+            }
+        });
+        fabricImage.on('removed', (e) => {
             this.setState({
-                hasImage: true
+                hasImage: false
             })
         });
+        this.canvas.add(fabricImage).renderAll();
+        this.canvas.setActiveObject(fabricImage);
+        this.setState({
+            hasImage: true
+        })
     }
     _degToRad(degrees) {
         return degrees * (Math.PI / 180);
