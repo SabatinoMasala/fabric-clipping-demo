@@ -36,6 +36,13 @@
         mounted() {
 
             const canvas = new fabric.Canvas('canvas');
+            canvas.setZoom(0.5);
+            canvas.absolutePan(
+                new fabric.Point(
+                    -50,
+                    -50,
+                )
+            );
 
             let rect1 = new ClipRect(canvas, {
                 left: 0,
@@ -70,6 +77,16 @@
             rect4.render();
 
             $('body').keydown((e) => {
+                if (e.keyCode === 13) {
+                    canvas.absolutePan(
+                        new fabric.Point(
+                            0,
+                            0,
+                        )
+                    );
+                    canvas.renderAll();
+                    canvas.trigger('moved');
+                }
                 if (e.keyCode === 8) {
                     const obj = canvas.getActiveObject();
                     if (obj) {

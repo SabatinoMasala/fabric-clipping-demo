@@ -21,6 +21,12 @@ export default class {
 
         this.canvas = canvas;
         this.clipRect = new fabric.Rect(options);
+        this.clipRect.on('moving', _ => {
+            this.positionButton();
+        });
+        this.canvas.on('moved', _ => {
+            this.positionButton();
+        });
 
         // Input upload
         this.inputUpload = document.createElement('input');
@@ -46,26 +52,17 @@ export default class {
                 width: fabricImage.width * this.clipRect.width,
                 height: fabricImage.height * this.clipRect.width,
                 clipTo(ctx) {
+                    let panLeft = _this.canvas.viewportTransform[4];
+                    let panTop = _this.canvas.viewportTransform[5];
                     this.setCoords();
-                    let scaleXTo1 = (1 / this.scaleX);
-                    let scaleYTo1 = (1 / this.scaleY);
                     ctx.save();
-
-                    let ctxLeft = -( this.width / 2 ) + _this.clipRect.strokeWidth;
-                    let ctxTop = -( this.height / 2 ) + _this.clipRect.strokeWidth;
-                    let ctxWidth = _this.clipRect.width - _this.clipRect.strokeWidth;
-                    let ctxHeight = _this.clipRect.height - _this.clipRect.strokeWidth;
-
-                    ctx.translate( ctxLeft, ctxTop );
-
-                    ctx.rotate(_this._degToRad(this.angle * -1));
-                    ctx.scale(scaleXTo1, scaleYTo1);
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
                     ctx.beginPath();
                     ctx.rect(
-                        _this.clipRect.left - this.oCoords.tl.x,
-                        _this.clipRect.top - this.oCoords.tl.y,
-                        _this.clipRect.width,
-                        _this.clipRect.height
+                        _this.zoom(_this.clipRect.left) + panLeft,
+                        _this.zoom(_this.clipRect.top) + panTop,
+                        _this.zoom(_this.clipRect.width),
+                        _this.zoom(_this.clipRect.height)
                     );
                     ctx.closePath();
                     ctx.restore();
@@ -100,21 +97,26 @@ export default class {
     getCanvasPos() {
         return $(this.canvas.upperCanvasEl).offset();
     }
+    zoom(value) {
+        return value * this.canvas.getZoom();
+    }
     positionButton() {
-        let canvasPos = this.getCanvasPos();
+        let domCanvasPos = this.getCanvasPos();
+        let panLeft = this.canvas.viewportTransform[4];
+        let panTop = this.canvas.viewportTransform[5];
         let objectPos = {
-            top: this.clipRect.top,
-            left: this.clipRect.left,
-            width: this.clipRect.width,
-            height: this.clipRect.height,
+            top: this.zoom(this.clipRect.top),
+            left: this.zoom(this.clipRect.left),
+            width: this.zoom(this.clipRect.width),
+            height: this.zoom(this.clipRect.height),
         };
-        let buttonPos = {
+        let domButtonSize = {
             width: $(this.btnUpload).width(),
             height: $(this.btnUpload).height(),
         };
         $(this.btnUpload).offset({
-            top: canvasPos.top + objectPos.top + objectPos.height / 2 - buttonPos.height / 2,
-            left: canvasPos.left + objectPos.left + objectPos.width / 2 - buttonPos.width / 2,
+            top: domCanvasPos.top + objectPos.top + objectPos.height / 2 - domButtonSize.height / 2 + panTop,
+            left: domCanvasPos.left + objectPos.left + objectPos.width / 2 - domButtonSize.width / 2 + panLeft,
         })
     }
     render() {
