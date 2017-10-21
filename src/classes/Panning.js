@@ -69,6 +69,6 @@ fabric.Canvas.prototype.toggleDragMode = function(dragMode) {
         this.off('mouse:down');
         this.off('mouse:move');
         // Restore selection ability on the canvas
-        this.selection = false;
+        this.selection = true;
     }
 };
