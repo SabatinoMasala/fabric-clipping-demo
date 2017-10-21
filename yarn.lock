@@ -4538,11 +4538,9 @@ vm-browserify@0.0.4:
   dependencies:
     indexof "0.0.1"
 
-vue-github-corners@^1.2.3:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/vue-github-corners/-/vue-github-corners-1.2.3.tgz#6d5db136bfe5e5acf8229809ddfa8d3f6b639182"
-  dependencies:
-    vue "^2.1.0"
+vue-gh-corners@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/vue-gh-corners/-/vue-gh-corners-2.0.0.tgz#83e216db10945c85f4955a97022bf4623bb596e3"
 
 vue-hot-reload-api@^2.2.0:
   version "2.2.0"
@@ -4584,7 +4582,7 @@ vue-template-es2015-compiler@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.6.0.tgz#dc42697133302ce3017524356a6c61b7b69b4a18"
 
-vue@^2.1.0, vue@^2.5.2:
+vue@^2.5.2:
   version "2.5.2"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.5.2.tgz#fd367a87bae7535e47f9dc5c9ec3b496e5feb5a4"
 

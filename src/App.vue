@@ -1,6 +1,6 @@
 <template>
     <div>
-        <GithubCorner url="https://github.com/SabatinoMasala/fabric-clipping-demo"></GithubCorner>
+        <github-corners repo="SabatinoMasala/fabric-clipping-demo"></github-corners>
         <div id="toolbar" class="text-center">
             <button @click.stop.prevent="zoomIn">Zoom in</button>
             <button @click.stop.prevent="zoomOut">Zoom out</button>
@@ -25,15 +25,15 @@
 </template>
 
 <script>
-    import GithubCorner from './components/GithubCorner'
+    import Vue from 'vue';
+    import VueGitHubCorners from 'vue-gh-corners';
+    import 'vue-gh-corners/dist/vue-github-corners.css';
+    Vue.use(VueGitHubCorners);
     import $ from 'jquery'
     import ClipRect from './classes/ClipRect'
     import Panning from './classes/Panning'
     export default {
         name: 'fabric-clipping-demo',
-        components: {
-            GithubCorner
-        },
         computed: {
             // Generate helpful messages to help the user
             helpMessage() {
