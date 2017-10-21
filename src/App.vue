@@ -35,6 +35,7 @@
             GithubCorner
         },
         computed: {
+            // Generate helpful messages to help the user
             helpMessage() {
                 if (this.activeObject) {
                     return 'Press backspace to delete the object';
