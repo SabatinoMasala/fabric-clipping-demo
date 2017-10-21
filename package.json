@@ -1,7 +1,7 @@
 {
-  "name": "fabric-clipping",
+  "name": "fabric-clipping-demo",
   "version": "1.0.0",
-  "description": "A Vue.js project",
+  "description": "Fabric.js clipping demo example",
   "author": "Sabatino Masala <Masalasabatino@gmail.com>",
   "private": true,
   "scripts": {
