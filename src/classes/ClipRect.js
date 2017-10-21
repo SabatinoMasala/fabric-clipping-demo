@@ -6,7 +6,7 @@ export default class {
         let defaults = {
             originX: 'left',
             originY: 'top',
-            fill: '#ccc',
+            fill: '#FF8552',
             strokeWidth: 0,
             selectable: false,
             evented: false,

@@ -1,5 +1,6 @@
 <template>
     <div>
+        <GithubCorner url="https://github.com/SabatinoMasala/fabric-clipping-demo"></GithubCorner>
         <div id="toolbar" class="text-center">
             <button @click.stop.prevent="zoomIn">Zoom in</button>
             <button @click.stop.prevent="zoomOut">Zoom out</button>
@@ -11,21 +12,39 @@
             <div class="spacer" v-if="activeObject">&nbsp;</div>
             <button class="delete" @click.stop.prevent="removeActiveObject()" v-if="activeObject">Delete object</button>
         </div>
+        <h1 class="text-center heading">Fabric.js clipping & panning demo</h1>
         <div id="app">
             <div class="wrapper">
                 <canvas id="canvas" width="500" height="500"></canvas>
+                <div class="text-center">
+                    <p class="help" v-if="helpMessage">{{ helpMessage }}</p>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-
+    import GithubCorner from './components/GithubCorner'
     import $ from 'jquery'
     import ClipRect from './classes/ClipRect'
     import Panning from './classes/Panning'
     export default {
-        name: 'app',
+        name: 'fabric-clipping-demo',
+        components: {
+            GithubCorner
+        },
+        computed: {
+            helpMessage() {
+                if (this.activeObject) {
+                    return 'Press backspace to delete the object';
+                }
+                if (this.dragMode) {
+                    return 'Drag the canvas to pan';
+                }
+                return false;
+            }
+        },
         methods: {
             // Remove the active object
             removeActiveObject() {
@@ -68,6 +87,7 @@
 
             // Create the canvas
             this.canvas = new fabric.Canvas('canvas');
+            this.canvas.backgroundColor = '#fff';
 
             // Listen to some events
             this.canvas.on('object:selected', e => {
@@ -116,55 +136,56 @@
         }
     }
 </script>
-<style>
-    #toolbar {
-        position: fixed;
-        top: 0;
-        right: 0;
-        left: 0;
-        background-color: #333;
-        padding: 10px;
-        z-index: 999;
-    }
-    #toolbar .spacer {
-        display: inline-block;
-        width: 20px;
-    }
-    #toolbar button {
-        border: 0;
-        background-color: #fff;
-        color: #333;
-        cursor: pointer;
-    }
-    #toolbar button.delete {
-        background-color: #ff7b83;
-        color: #fff;
-    }
-    .text-center {
-        text-align: center;
-    }
-    button {
-        padding: 10px;
-    }
-    .wrapper {
-        display: flex;
-        margin: auto;
-    }
+<style lang="scss">
+    $colorPrimary: #fff;
+    $colorDelete: #D64933;
+    $colorText: #2B303A;
+    $colorBg: #92DCE5;
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
     }
-    #app {
-        display: flex;
-        background-color: #fff;
-        height: 100vh;
+    body {
+        background-color: $colorBg;
+        font-family: HelveticaNeue,Helvetica Neue,Helvetica,Arial,sans-serif;
+        color: $colorText;
     }
-    canvas {
-        border: 2px #000 solid;
+    .help {
+        display: inline-block;
+        padding: 10px;
+        background-color: $colorPrimary;
+    }
+    .heading {
+        padding-top: 100px;
+    }
+    #toolbar {
+        background-color: $colorPrimary;
+        padding: 10px;
+        z-index: 999;
+        .spacer {
+            display: inline-block;
+            width: 20px;
+        }
+        button.delete {
+            background-color: $colorDelete;
+            color: #fff;
+        }
+    }
+    button {
+        border: 0;
+        background-color: $colorText;
+        color: $colorPrimary;
+        cursor: pointer;
+        padding: 10px;
+    }
+    .text-center {
+        text-align: center;
     }
     .canvas-container {
+        border: 2px $colorPrimary solid;
         overflow: hidden;
+        margin: 50px auto;
     }
     input[type=file] {
         position: absolute;

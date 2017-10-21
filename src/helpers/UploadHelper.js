@@ -39,7 +39,7 @@ export default {
                     // Set the aspect
                     aspect = img.width / img.height;
                     // Set the props
-                    props = Object.assign(defaultProps, {
+                    props = Object.assign(imageProps, {
                         width: 1,
                         height: 1 / aspect
                     });
