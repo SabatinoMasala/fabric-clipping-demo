@@ -1,5 +1,6 @@
 import $ from 'jquery'
 import UploadHelper from '../helpers/UploadHelper'
+import _ from 'lodash'
 export default class {
     constructor(canvas, userOptions = {}) {
         // Set some defaults
@@ -12,21 +13,45 @@ export default class {
             evented: false,
         };
         // Overwrite the defaults with the user options
-        let options = Object.assign(defaults, userOptions);
+        let options = Object.assign({}, defaults, userOptions);
         // Keep track of the state
         this.state = {
-            hasImage: false
+            hasImage: false,
+            hover: false,
+            selected: false
         };
         // Store some instance variables
         this.canvas = canvas;
         this.clipRect = new fabric.Rect(options);
         // Events
         this.clipRect.on('moving', _ => {
-            this._positionButton();
+            this._positionButtons();
         });
         this.canvas.on('moved', _ => {
-            this._positionButton();
+            this._positionButtons();
         });
+        this.canvas.on('mouse:move', _.throttle(data => {
+            console.log('mousemove');
+            // If the image is selected, we allow clicks from outside the clipRect
+            if (this.state.selected) {
+                return;
+            }
+            // Check if the mouse is over the cliprect
+            const event = data.e;
+            const panLeft = this.canvas.viewportTransform[4];
+            const panTop = this.canvas.viewportTransform[5];
+            let hovering = false;
+            const offsetX = event.offsetX;
+            const offsetY = event.offsetY;
+            if (offsetX > this._zoom(this.clipRect.left + panLeft, true) && offsetX < this._zoom(this.clipRect.left + this.clipRect.width + panLeft, true)) {
+                if (offsetY > this._zoom(this.clipRect.top + panTop, true) && offsetY < this._zoom(this.clipRect.top + this.clipRect.height + panTop, true)) {
+                    hovering = true;
+                }
+            }
+            this._setState({
+                hover: hovering
+            })
+        }, 1));
 
         // Input upload
         this.inputUpload = document.createElement('input');
@@ -39,9 +64,33 @@ export default class {
         this.btnUpload.style.position = 'absolute';
         $('.canvas-container').append(this.btnUpload);
 
+        // Edit button
+        this.btnSelect = document.createElement('button');
+        this.btnSelect.innerHTML = 'Select';
+        this.btnSelect.className = 'cliprect_toolbar__edit';
+        this.btnSelect.style.position = 'absolute';
+        $(this.btnSelect).hide();
+        $('.canvas-container').append(this.btnSelect);
+
+        // Delete button
+        this.btnDelete = document.createElement('button');
+        this.btnDelete.innerHTML = 'Delete';
+        this.btnDelete.className = 'cliprect_toolbar__delete';
+        this.btnDelete.style.position = 'absolute';
+        $(this.btnDelete).hide();
+        $('.canvas-container').append(this.btnDelete);
+
         // DOM Events
         $(this.btnUpload).click(this._onClickButtonUpload.bind(this));
+        $(this.btnDelete).click(this._handleDelete.bind(this));
+        $(this.btnSelect).click(this._handleEdit.bind(this));
         $(this.inputUpload).change(this._handleUpload.bind(this));
+    }
+    _handleEdit(e) {
+        this.canvas.setActiveObject(this.fabricImage);
+    }
+    _handleDelete(e) {
+        this.fabricImage.remove();
     }
     _handleUpload(e) {
         UploadHelper.handleEvent(e, (fabricImage) => {
@@ -80,11 +129,33 @@ export default class {
                 ctx.restore();
             }
         });
+        // Store the image in an instance variable
+        this.fabricImage = fabricImage;
         // Events on the image
         fabricImage.on('removed', (e) => {
             this._setState({
                 hasImage: false
             })
+        });
+        // When the image is deselected, we set evented & selectable to false
+        fabricImage.on('deselected', (e) => {
+            fabricImage.set({
+                // evented: false,
+                // selectable: false
+            });
+            this._setState({
+                selected: false
+            })
+        });
+        // When the image is selected, we set evented & selectable to true, so we can move the image
+        fabricImage.on('selected', (e) => {
+            fabricImage.set({
+                evented: true,
+                selectable: true
+            });
+            this._setState({
+                selected: true
+            });
         });
         // Add the image to the canvas
         this.canvas.add(fabricImage).renderAll();
@@ -100,16 +171,52 @@ export default class {
         return degrees * (Math.PI / 180);
     }
     // Update the current state
-    _setState(state) {
-        // Overwrite the state
-        this.state = Object.assign(this.state, state);
-        // If we have no image, we show the upload button
-        if (!this.state.hasImage) {
-            $(this.btnUpload).show();
-            this._positionButton();
-        } else { // If we have an image, we hide the upload button
-            $(this.btnUpload).hide();
+    _setState(newState) {
+        // Merge old state and new state
+        newState = Object.assign({}, this.state, newState);
+        if (newState.hasImage !== this.state.hasImage) {
+            // If we have no image, we show the upload button
+            if (!newState.hasImage) {
+                $(this.btnUpload).show();
+                $(this.btnDelete).hide();
+                $(this.btnSelect).hide();
+            } else { // If we have an image, we hide the upload button
+                $(this.btnUpload).hide();
+                $(this.btnDelete).show();
+            }
+            this._positionButtons();
         }
+        if (newState.hasImage) {
+            if (newState.selected !== this.state.selected) {
+                if (newState.selected) {
+                    $(this.btnSelect).hide();
+                } else {
+                    $(this.btnSelect).show();
+                }
+                this._positionButtons();
+            }
+        }
+        if (newState.hover !== this.state.hover) {
+            // If we have an image, we make it selectable ONLY when the mouse is over the cliprect
+            if (newState.hover) {
+                if (this.fabricImage) {
+                    this.fabricImage.set({
+                        evented: true,
+                        selectable: true
+                    })
+                }
+            } else {
+                if (this.fabricImage) {
+                    this.fabricImage.set({
+                        evented: false,
+                        selectable: false
+                    })
+                }
+            }
+            this.canvas.renderAll();
+        }
+        // Overwrite the state
+        this.state = newState;
     }
     // Click handler for the upload button
     _onClickButtonUpload(e) {
@@ -130,7 +237,7 @@ export default class {
         return value * multiplier;
     }
     // Position the upload button
-    _positionButton() {
+    _positionButtons() {
         // Get canvas position in the dom
         let domCanvasPos = this._getDomCanvasPosition();
         // Get the absolute panned values of the canvas
@@ -152,6 +259,16 @@ export default class {
         $(this.btnUpload).offset({
             top: objectPos.top + objectPos.height / 2 + panTop - domButtonSize.height / 2 + domCanvasPos.top,
             left: objectPos.left + objectPos.width / 2 + panLeft - domButtonSize.width / 2 + domCanvasPos.left,
+        });
+        // Set the offset on the upload button
+        $(this.btnDelete).offset({
+            top: objectPos.top + panTop + domCanvasPos.top + 7,
+            left: objectPos.left + panLeft + domCanvasPos.left + 7,
+        });
+        // Set the offset on the upload button
+        $(this.btnSelect).offset({
+            top: objectPos.top + panTop + domCanvasPos.top + 50,
+            left: objectPos.left + panLeft + domCanvasPos.left + 7,
         })
     }
     // Public method to add the cliprect to the canvas
@@ -159,6 +276,6 @@ export default class {
         // Add the cliprect to the canvas
         this.canvas.add(this.clipRect).renderAll();
         // Reposition the button
-        this._positionButton();
+        this._positionButtons();
     }
 }

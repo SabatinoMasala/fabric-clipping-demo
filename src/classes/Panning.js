@@ -1,12 +1,43 @@
 /* global fabric */
 const STATE_IDLE = 'idle';
 const STATE_PANNING = 'panning';
+// Remember the previous X and Y coordinates for delta calculations
+let lastClientX;
+let lastClientY;
+// Keep track of the state
+fabric.Canvas.prototype.panState = STATE_IDLE;
+fabric.Canvas.prototype.panMouseMoveHandler = function(e) {
+    if (this.panState === STATE_PANNING && e && e.e) {
+        // let delta = new fabric.Point(e.e.movementX, e.e.movementY); // No Safari support for movementX and movementY
+        // For cross-browser compatibility, I had to manually keep track of the delta
+
+        // Calculate deltas
+        let deltaX = 0;
+        let deltaY = 0;
+        if (lastClientX) {
+            deltaX = e.e.clientX - lastClientX;
+        }
+        if (lastClientY) {
+            deltaY = e.e.clientY - lastClientY;
+        }
+        // Update the last X and Y values
+        lastClientX = e.e.clientX;
+        lastClientY = e.e.clientY;
+
+        let delta = new fabric.Point(deltaX, deltaY);
+        this.relativePan(delta);
+        this.trigger('moved');
+    }
+};
+fabric.Canvas.prototype.panMouseUpHandler = function(e) {
+    this.panState = STATE_IDLE;
+};
+fabric.Canvas.prototype.panMouseDownHandler = function(e) {
+    this.panState = STATE_PANNING;
+    lastClientX = e.e.clientX;
+    lastClientY = e.e.clientY;
+};
 fabric.Canvas.prototype.toggleDragMode = function(dragMode) {
-    // Remember the previous X and Y coordinates for delta calculations
-    let lastClientX;
-    let lastClientY;
-    // Keep track of the state
-    let state = STATE_IDLE;
     // We're entering dragmode
     if (dragMode) {
         // Discard any active object
@@ -23,39 +54,11 @@ fabric.Canvas.prototype.toggleDragMode = function(dragMode) {
         // Remove selection ability on the canvas
         this.selection = false;
         // When MouseUp fires, we set the state to idle
-        this.on('mouse:up', function (e) {
-            state = STATE_IDLE;
-        });
+        this.on('mouse:up', this.panMouseUpHandler);
         // When MouseDown fires, we set the state to panning
-        this.on('mouse:down', (e) => {
-            state = STATE_PANNING;
-            lastClientX = e.e.clientX;
-            lastClientY = e.e.clientY;
-        });
+        this.on('mouse:down', this.panMouseDownHandler);
         // When the mouse moves, and we're panning (mouse down), we continue
-        this.on('mouse:move', (e) => {
-            if (state === STATE_PANNING && e && e.e) {
-                // let delta = new fabric.Point(e.e.movementX, e.e.movementY); // No Safari support for movementX and movementY
-                // For cross-browser compatibility, I had to manually keep track of the delta
-
-                // Calculate deltas
-                let deltaX = 0;
-                let deltaY = 0;
-                if (lastClientX) {
-                    deltaX = e.e.clientX - lastClientX;
-                }
-                if (lastClientY) {
-                    deltaY = e.e.clientY - lastClientY;
-                }
-                // Update the last X and Y values
-                lastClientX = e.e.clientX;
-                lastClientY = e.e.clientY;
-
-                let delta = new fabric.Point(deltaX, deltaY);
-                this.relativePan(delta);
-                this.trigger('moved');
-            }
-        });
+        this.on('mouse:move', this.panMouseMoveHandler);
     } else {
         // When we exit dragmode, we restore the previous values on all objects
         this.forEachObject(function(object) {
@@ -65,9 +68,9 @@ fabric.Canvas.prototype.toggleDragMode = function(dragMode) {
         // Reset the cursor
         this.defaultCursor = 'default';
         // Remove the event listeners
-        this.off('mouse:up');
-        this.off('mouse:down');
-        this.off('mouse:move');
+        this.off('mouse:up', this.panMouseUpHandler);
+        this.off('mouse:down', this.panMouseDownHandler);
+        this.off('mouse:move', this.panMouseMoveHandler);
         // Restore selection ability on the canvas
         this.selection = true;
     }
