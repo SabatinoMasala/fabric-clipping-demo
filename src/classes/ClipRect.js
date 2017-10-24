@@ -42,15 +42,15 @@ export default class {
             let hovering = false;
             const offsetX = event.offsetX;
             const offsetY = event.offsetY;
-            if (offsetX > this._zoom(this.clipRect.left + panLeft, false) && offsetX < this._zoom(this.clipRect.left + this.clipRect.width + panLeft, false)) {
-                if (offsetY > this._zoom(this.clipRect.top + panTop, false) && offsetY < this._zoom(this.clipRect.top + this.clipRect.height + panTop, false)) {
+            if (offsetX > this._zoom(this.clipRect.left, false) + panLeft && offsetX < this._zoom(this.clipRect.left + this.clipRect.width, false) + panLeft) {
+                if (offsetY > this._zoom(this.clipRect.top, false) + panTop && offsetY < this._zoom(this.clipRect.top + this.clipRect.height, false) + panTop) {
                     hovering = true;
                 }
             }
             this._setState({
                 hover: hovering
             })
-        }, 500));
+        }, 1));
 
         // Input upload
         this.inputUpload = document.createElement('input');
@@ -138,10 +138,6 @@ export default class {
         });
         // When the image is deselected, we set evented & selectable to false
         fabricImage.on('deselected', (e) => {
-            fabricImage.set({
-                // evented: false,
-                // selectable: false
-            });
             this._setState({
                 selected: false
             })
