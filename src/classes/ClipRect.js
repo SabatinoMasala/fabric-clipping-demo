@@ -50,7 +50,7 @@ export default class {
             this._setState({
                 hover: hovering
             })
-        }, 1));
+        }, 500));
 
         // Input upload
         this.inputUpload = document.createElement('input');
