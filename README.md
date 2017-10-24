@@ -9,6 +9,8 @@ An example of how to use Fabric.js to create clipping masks.
 - Interacts with objects outside the canvas
 - Upload an image from your computer
 - Works on retina devices
+- Convenience buttons
+- Select the image only when the mouse is over the clip rect
 
 # Screencast
 

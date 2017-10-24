@@ -31,7 +31,6 @@ export default class {
             this._positionButtons();
         });
         this.canvas.on('mouse:move', _.throttle(data => {
-            console.log('mousemove');
             // If the image is selected, we allow clicks from outside the clipRect
             if (this.state.selected) {
                 return;
@@ -43,8 +42,8 @@ export default class {
             let hovering = false;
             const offsetX = event.offsetX;
             const offsetY = event.offsetY;
-            if (offsetX > this._zoom(this.clipRect.left + panLeft, true) && offsetX < this._zoom(this.clipRect.left + this.clipRect.width + panLeft, true)) {
-                if (offsetY > this._zoom(this.clipRect.top + panTop, true) && offsetY < this._zoom(this.clipRect.top + this.clipRect.height + panTop, true)) {
+            if (offsetX > this._zoom(this.clipRect.left + panLeft, false) && offsetX < this._zoom(this.clipRect.left + this.clipRect.width + panLeft, false)) {
+                if (offsetY > this._zoom(this.clipRect.top + panTop, false) && offsetY < this._zoom(this.clipRect.top + this.clipRect.height + panTop, false)) {
                     hovering = true;
                 }
             }
